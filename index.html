@@ -3,10 +3,18 @@
 
 <head>
   <meta charset="utf-8">
+  <script src="/van.min.js"></script>
+</head>
+
+<body>
+  <div id="app">
+  </div>
+
   <script>
+    /// AUDIO PLAYER ///
     let audioCtx = null;
     let source = null;
-    let isPlaying = false;
+    let isPlaying = van.state(false);
 
     function stopWave() {
       if (!source) return;
@@ -42,22 +50,34 @@
       source.connect(audioCtx.destination);
       source.start();
 
-      isPlaying = true;
+      isPlaying.val = true;
     }
 
-    function handleButton() {
-      if (isPlaying) {
+    function playStop() {
+      if (isPlaying.val) {
         stopWave();
-        isPlaying = false;
+        isPlaying.val = false;
       } else {
         playWave();
       }
     }
-  </script>
-</head>
 
-<body>
-  <button onclick="handleButton();">play wave</button>
+
+    /// UI ///
+    const {
+      button,
+      div,
+    } = van.tags;
+
+    const App = () =>
+      button(
+        { onclick: playStop },
+        () => isPlaying.val ? "stop wave" : "play wave"
+      );
+
+    const appEl = document.getElementById("app");
+    van.add(appEl, App());
+  </script>
 </body>
 
 </html>
