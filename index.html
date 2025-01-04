@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <script>
+    let audioCtx = null;
+    let source = null;
+    let isPlaying = false;
+
+    function stopWave() {
+      if (!source) return;
+
+      source.stop();
+      source = null;
+    }
+
+    function playWave() {
+      stopWave();
+
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+
+      const audioData = new Uint8Array([
+        0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+      ]);
+
+      const buffer = audioCtx.createBuffer(1, audioData.length, audioCtx.sampleRate);
+      const channelData = buffer.getChannelData(0);
+
+      for (let i = 0; i < audioData[i]; ++i) {
+        // normalize to [-1, 1] and output to device
+        channelData[i] = audioData[i] / 0x20 - 1;
+      }
+
+      source = audioCtx.createBufferSource();
+      source.buffer = buffer;
+      source.loop = true;
+
+      source.connect(audioCtx.destination);
+      source.start();
+
+      isPlaying = true;
+    }
+
+    function handleButton() {
+      if (isPlaying) {
+        stopWave();
+        isPlaying = false;
+      } else {
+        playWave();
+      }
+    }
+  </script>
+</head>
+
+<body>
+  <button onclick="handleButton();">play wave</button>
+</body>
+
+</html>
